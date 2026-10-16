@@ -1,0 +1,59 @@
+@startuml
+autonumber
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+actor Cliente
+participant "Pantalla de Reservas" as Pantalla
+participant "Sistema GymFit" as Sistema
+database "Base de Datos" as BD
+
+== 1. Inicio de Sesión ==
+Cliente -> Pantalla: Iniciar sesión (credenciales)
+activate Pantalla
+Pantalla -> Sistema: Validar credenciales()
+activate Sistema
+Sistema -> BD: Consultar usuario()
+activate BD
+BD --> Sistema: Datos de usuario válidos
+deactivate BD
+Sistema --> Pantalla: Sesión iniciada con éxito
+deactivate Sistema
+Pantalla --> Cliente: Mostrar menú principal / listado
+
+== 2 y 3. Selección de Actividad ==
+Cliente -> Pantalla: Acceder al listado de actividades
+Pantalla -> Sistema: Obtener actividades()
+activate Sistema
+Sistema -> BD: Consultar actividades disponibles()
+activate BD
+BD --> Sistema: Listado de actividades
+deactivate BD
+Sistema --> Pantalla: Mostrar listado
+deactivate Sistema
+Pantalla --> Cliente: Visualizar actividades
+Cliente -> Pantalla: Seleccionar actividad específica
+
+== 4, 5 y 6. Comprobación, Registro y Confirmación ==
+Pantalla -> Sistema: Solicitar reserva(actividad)
+activate Sistema
+Sistema -> BD: Comprobar plazas disponibles(actividad)
+activate BD
+BD --> Sistema: Resultado de plazas (Existen plazas)
+deactivate BD
+
+alt Si existen plazas
+    Sistema -> BD: Registrar reserva(cliente, actividad)
+    activate BD
+    BD --> Sistema: Confirmación de registro
+    deactivate BD
+    Sistema --> Pantalla: Mostrar mensaje de confirmación exitosa
+    deactivate Sistema
+    Pantalla --> Cliente: Mostrar confirmación de reserva
+else No quedan plazas
+    Sistema --> Pantalla: Mostrar mensaje de error (Sin plazas)
+    deactivate Sistema
+    Pantalla --> Cliente: Notificar que la actividad está completa
+end
+
+@enduml
